@@ -13,3 +13,7 @@ targets:
       - "M5"
       - "24GB"
 
+  - name: テスト
+    keywords:
+      - "MacBook"
+
