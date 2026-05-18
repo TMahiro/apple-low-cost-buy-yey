@@ -1,1 +1,42 @@
+name: Apple整備済製品 監視
 
+on:
+  schedule:
+    # 5分毎に実行（24時間365日）
+    - cron: "*/5 * * * *"
+
+  # 手動実行も可能
+  workflow_dispatch:
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # state.json をコミットするために必要
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Pythonをセットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: 依存パッケージをインストール
+        run: pip install -r requirements.txt
+
+      - name: 監視スクリプトを実行
+        env:
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+        run: python monitor.py
+
+      - name: state.jsonの変更をコミット
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add state.json
+          # 変更がある場合のみコミット
+          git diff --cached --quiet || git commit -m "chore: update state.json [skip ci]"
+          git push
