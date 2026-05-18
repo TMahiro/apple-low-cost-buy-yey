@@ -30,6 +30,7 @@ jobs:
       - name: 監視スクリプトを実行
         env:
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
         run: python monitor.py
 
       - name: state.jsonの変更をコミット
