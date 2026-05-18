@@ -17,3 +17,7 @@ targets:
     keywords:
       - "MacBook"
 
+  - name: MacBook Pro
+    keywords:
+      - "m5"
+
