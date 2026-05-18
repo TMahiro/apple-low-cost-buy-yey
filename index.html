@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apple整備品 監視コンソール</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #1a1a24;
+    --border: #2a2a3a;
+    --accent: #4fffb0;
+    --accent2: #4fc3ff;
+    --warn: #ff6b6b;
+    --text: #e8e8f0;
+    --text2: #888899;
+    --text3: #555566;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+
+  /* ── ヘッダー ── */
+  header {
+    max-width: 860px;
+    margin: 0 auto 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+
+  h1 {
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: -0.3px;
+  }
+
+  h1 span {
+    display: block;
+    font-size: 11px;
+    font-weight: 300;
+    color: var(--text2);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* ── カード共通 ── */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    max-width: 860px;
+    margin: 0 auto 16px;
+  }
+
+  .card-title {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text2);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* ── GitHub設定 ── */
+  .fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  @media (max-width: 600px) { .fields { grid-template-columns: 1fr; } }
+
+  label {
+    display: block;
+    font-size: 11px;
+    color: var(--text2);
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+
+  input[type="text"], input[type="password"] {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input:focus { border-color: var(--accent); }
+
+  /* ── ボタン ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text2);
+  }
+
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-danger {
+    background: transparent;
+    border: 1px solid var(--warn);
+    color: var(--warn);
+  }
+
+  .btn-danger:hover { background: var(--warn); color: #fff; }
+
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* ── ステータスバー ── */
+  .status-bar {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .stat {
+    flex: 1;
+    min-width: 140px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text2);
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .stat-value.on { color: var(--accent); }
+  .stat-value.off { color: var(--warn); }
+
+  /* ── トグル ── */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .toggle-row:last-child { border-bottom: none; }
+
+  .toggle-label { font-size: 14px; }
+  .toggle-desc { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+  .toggle {
+    position: relative;
+    width: 48px; height: 26px;
+    cursor: pointer;
+  }
+
+  .toggle input { display: none; }
+
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    transition: all 0.2s;
+  }
+
+  .toggle input:checked ~ .toggle-track {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .toggle-thumb {
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 18px; height: 18px;
+    background: var(--text2);
+    border-radius: 50%;
+    transition: all 0.2s;
+  }
+
+  .toggle input:checked ~ .toggle-track .toggle-thumb {
+    transform: translateX(22px);
+    background: #000;
+  }
+
+  /* ── 監視対象リスト ── */
+  .target-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .target-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: border-color 0.2s;
+  }
+
+  .target-item:hover { border-color: var(--accent); }
+
+  .target-info { flex: 1; }
+
+  .target-name {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .target-keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 6px;
+  }
+
+  .keyword-tag {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+  }
+
+  /* ── モーダル ── */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .overlay.open { display: flex; }
+
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .modal-title {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 20px;
+  }
+
+  .modal-field { margin-bottom: 14px; }
+
+  .keywords-input {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .keyword-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  .keyword-row input { flex: 1; }
+
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  /* ── 通知履歴 ── */
+  .history-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .history-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 10px 12px;
+    background: var(--bg3);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .history-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    margin-top: 1px;
+  }
+
+  .badge-new { background: rgba(79,255,176,0.15); color: var(--accent); }
+  .badge-sold { background: rgba(255,107,107,0.15); color: var(--warn); }
+
+  .history-name { font-size: 13px; flex: 1; }
+  .history-time { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3); white-space: nowrap; }
+
+  /* ── トースト ── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 13px;
+    z-index: 200;
+    transition: transform 0.3s;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--accent); color: var(--accent); }
+  .toast.error { border-color: var(--warn); color: var(--warn); }
+
+  /* ── ローディング ── */
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty {
+    text-align: center;
+    color: var(--text3);
+    font-size: 13px;
+    padding: 24px 0;
+  }
+
+  .connect-hint {
+    text-align: center;
+    color: var(--text3);
+    font-size: 13px;
+    padding: 32px 0;
+  }
+
+  .section-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 14px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🍎</div>
+    <h1>整備品 監視コンソール<span>Apple Refurbished Monitor</span></h1>
+  </div>
+</header>
+
+<!-- GitHub接続設定 -->
+<div class="card">
+  <div class="card-title">GitHub 接続設定</div>
+  <div class="fields">
+    <div>
+      <label>GITHUB TOKEN（repo権限が必要）</label>
+      <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx">
+    </div>
+    <div>
+      <label>OWNER / REPO</label>
+      <input type="text" id="ghRepo" placeholder="username/apple-refurbished-monitor">
+    </div>
+  </div>
+  <div style="margin-top:14px; display:flex; gap:8px;">
+    <button class="btn btn-primary" onclick="connect()">
+      <span>接続</span>
+    </button>
+    <button class="btn btn-ghost" onclick="clearConnection()">切断</button>
+  </div>
+</div>
+
+<!-- ステータス -->
+<div class="card" id="statusCard" style="display:none">
+  <div class="card-title">ステータス</div>
+  <div class="status-bar">
+    <div class="stat">
+      <div class="stat-label">監視状態</div>
+      <div class="stat-value" id="statEnabled">-</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">監視対象</div>
+      <div class="stat-value" id="statTargets">-</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">最終チェック</div>
+      <div class="stat-value" id="statLastCheck" style="font-size:12px">-</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">現在の在庫数</div>
+      <div class="stat-value" id="statStock">-</div>
+    </div>
+  </div>
+
+  <!-- 監視オンオフ -->
+  <div class="toggle-row">
+    <div>
+      <div class="toggle-label">監視・通知</div>
+      <div class="toggle-desc">オフにすると取得・LINE通知が停止します</div>
+    </div>
+    <label class="toggle">
+      <input type="checkbox" id="enabledToggle" onchange="toggleEnabled()">
+      <div class="toggle-track"><div class="toggle-thumb"></div></div>
+    </label>
+  </div>
+</div>
+
+<!-- 監視対象 -->
+<div class="card" id="targetsCard" style="display:none">
+  <div class="card-title">監視対象モデル</div>
+  <div class="section-actions">
+    <button class="btn btn-primary" onclick="openAddModal()">＋ モデルを追加</button>
+  </div>
+  <div class="target-list" id="targetList">
+    <div class="connect-hint">GitHubに接続してください</div>
+  </div>
+</div>
+
+<!-- 通知履歴 -->
+<div class="card" id="historyCard" style="display:none">
+  <div class="card-title">通知履歴（直近10件）</div>
+  <div class="history-list" id="historyList">
+    <div class="empty">履歴はありません</div>
+  </div>
+</div>
+
+<!-- モーダル：モデル追加/編集 -->
+<div class="overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">モデルを追加</div>
+    <div class="modal-field">
+      <label>モデル名（表示用）</label>
+      <input type="text" id="modalName" placeholder="例：MacBook Pro 14インチ M5 24GB">
+    </div>
+    <div class="modal-field">
+      <label>キーワード（すべて一致で通知）</label>
+      <div class="keywords-input" id="keywordsInput"></div>
+      <button class="btn btn-ghost" style="margin-top:8px;font-size:12px" onclick="addKeywordRow()">＋ キーワードを追加</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">キャンセル</button>
+      <button class="btn btn-primary" id="modalSaveBtn" onclick="saveTarget()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- トースト -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ────────────────────────────────────────
+// 状態
+// ────────────────────────────────────────
+let config = null;       // config.yml の内容
+let state = null;        // state.json の内容
+let configSha = '';      // GitHubのファイルSHA（更新に必要）
+let history = [];        // 通知履歴（ローカル保持）
+let editingIndex = -1;   // 編集中のtargetインデックス
+
+function getToken()  { return document.getElementById('ghToken').value.trim(); }
+function getRepo()   { return document.getElementById('ghRepo').value.trim(); }
+
+// ────────────────────────────────────────
+// GitHub API
+// ────────────────────────────────────────
+async function ghFetch(path, options = {}) {
+  const res = await fetch(`https://api.github.com/repos/${getRepo()}/contents/${path}`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+    },
+    ...options,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+async function getFile(path) {
+  const data = await ghFetch(path);
+  const content = atob(data.content.replace(/\n/g, ''));
+  return { content, sha: data.sha };
+}
+
+async function putFile(path, content, sha, message) {
+  const encoded = btoa(unescape(encodeURIComponent(content)));
+  return ghFetch(path, {
+    method: 'PUT',
+    body: JSON.stringify({ message, content: encoded, sha }),
+  });
+}
+
+// ────────────────────────────────────────
+// YAML 簡易パーサー（config.yml用）
+// ────────────────────────────────────────
+function parseConfig(yaml) {
+  const lines = yaml.split('\n');
+  const result = { enabled: true, targets: [] };
+  let inTargets = false;
+  let currentTarget = null;
+  let inKeywords = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+
+    if (trimmed.startsWith('enabled:')) {
+      result.enabled = !trimmed.includes('false');
+      continue;
+    }
+    if (trimmed === 'targets:') { inTargets = true; continue; }
+
+    if (inTargets) {
+      if (trimmed.startsWith('- name:')) {
+        if (currentTarget) result.targets.push(currentTarget);
+        currentTarget = { name: trimmed.replace('- name:', '').trim().replace(/^["']|["']$/g, ''), keywords: [] };
+        inKeywords = false;
+      } else if (trimmed === 'keywords:' && currentTarget) {
+        inKeywords = true;
+      } else if (inKeywords && trimmed.startsWith('-') && currentTarget) {
+        const kw = trimmed.replace(/^-\s*/, '').replace(/^["']|["']$/g, '');
+        if (kw) currentTarget.keywords.push(kw);
+      }
+    }
+  }
+  if (currentTarget) result.targets.push(currentTarget);
+  return result;
+}
+
+function buildConfig(cfg) {
+  let yaml = `# ============================================================\n`;
+  yaml += `# Apple整備済製品 監視設定\n`;
+  yaml += `# ============================================================\n\n`;
+  yaml += `# 監視・通知のオンオフ\n`;
+  yaml += `enabled: ${cfg.enabled}\n\n`;
+  yaml += `targets:\n`;
+  for (const t of cfg.targets) {
+    yaml += `  - name: ${t.name}\n`;
+    yaml += `    keywords:\n`;
+    for (const kw of t.keywords) {
+      yaml += `      - "${kw}"\n`;
+    }
+    yaml += `\n`;
+  }
+  return yaml;
+}
+
+// ────────────────────────────────────────
+// 接続・読み込み
+// ────────────────────────────────────────
+async function connect() {
+  if (!getToken() || !getRepo()) { showToast('TokenとRepoを入力してください', 'error'); return; }
+
+  try {
+    // config.yml
+    const { content: cfgContent, sha } = await getFile('config.yml');
+    configSha = sha;
+    config = parseConfig(cfgContent);
+
+    // state.json
+    const { content: stateContent } = await getFile('state.json');
+    state = JSON.parse(stateContent);
+
+    // 履歴をlocalStorageから復元
+    history = JSON.parse(localStorage.getItem(`history_${getRepo()}`) || '[]');
+
+    renderAll();
+    showToast('接続しました', 'success');
+  } catch (e) {
+    showToast(`接続失敗: ${e.message}`, 'error');
+  }
+}
+
+function clearConnection() {
+  config = null; state = null; configSha = '';
+  document.getElementById('statusCard').style.display = 'none';
+  document.getElementById('targetsCard').style.display = 'none';
+  document.getElementById('historyCard').style.display = 'none';
+}
+
+// ────────────────────────────────────────
+// 描画
+// ────────────────────────────────────────
+function renderAll() {
+  document.getElementById('statusCard').style.display = 'block';
+  document.getElementById('targetsCard').style.display = 'block';
+  document.getElementById('historyCard').style.display = 'block';
+  renderStatus();
+  renderTargets();
+  renderHistory();
+}
+
+function renderStatus() {
+  const en = config.enabled;
+  const el = document.getElementById('statEnabled');
+  el.textContent = en ? '稼働中' : '停止中';
+  el.className = 'stat-value ' + (en ? 'on' : 'off');
+  document.getElementById('statTargets').textContent = `${config.targets.length} 件`;
+  const lc = state?.last_checked;
+  document.getElementById('statLastCheck').textContent = lc ? new Date(lc).toLocaleString('ja-JP') : 'なし';
+  const stock = Object.keys(state?.products || {}).length;
+  document.getElementById('statStock').textContent = `${stock} 件`;
+  document.getElementById('enabledToggle').checked = en;
+}
+
+function renderTargets() {
+  const list = document.getElementById('targetList');
+  if (!config.targets.length) {
+    list.innerHTML = '<div class="empty">監視対象がありません</div>';
+    return;
+  }
+  list.innerHTML = config.targets.map((t, i) => `
+    <div class="target-item">
+      <div class="target-info">
+        <div class="target-name">${escHtml(t.name)}</div>
+        <div class="target-keywords">
+          ${t.keywords.map(k => `<span class="keyword-tag">${escHtml(k)}</span>`).join('')}
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" onclick="openEditModal(${i})">編集</button>
+        <button class="btn btn-danger" style="padding:6px 12px;font-size:12px" onclick="deleteTarget(${i})">削除</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (!history.length) {
+    list.innerHTML = '<div class="empty">履歴はありません</div>';
+    return;
+  }
+  list.innerHTML = history.slice(0, 10).map(h => `
+    <div class="history-item">
+      <span class="history-badge ${h.type === 'new' ? 'badge-new' : 'badge-sold'}">
+        ${h.type === 'new' ? '入荷' : '売切'}
+      </span>
+      <span class="history-name">${escHtml(h.name)}</span>
+      <span class="history-time">${new Date(h.time).toLocaleString('ja-JP', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span>
+    </div>
+  `).join('');
+}
+
+// ────────────────────────────────────────
+// 監視オンオフ
+// ────────────────────────────────────────
+async function toggleEnabled() {
+  const newVal = document.getElementById('enabledToggle').checked;
+  config.enabled = newVal;
+  try {
+    const yaml = buildConfig(config);
+    const res = await putFile('config.yml', yaml, configSha, `chore: ${newVal ? 'enable' : 'disable'} monitoring`);
+    configSha = res.content.sha;
+    renderStatus();
+    showToast(newVal ? '監視を有効にしました' : '監視を停止しました', 'success');
+  } catch (e) {
+    config.enabled = !newVal;
+    document.getElementById('enabledToggle').checked = !newVal;
+    showToast(`保存失敗: ${e.message}`, 'error');
+  }
+}
+
+// ────────────────────────────────────────
+// モーダル
+// ────────────────────────────────────────
+function openAddModal() {
+  editingIndex = -1;
+  document.getElementById('modalTitle').textContent = 'モデルを追加';
+  document.getElementById('modalName').value = '';
+  document.getElementById('keywordsInput').innerHTML = '';
+  addKeywordRow(); addKeywordRow(); addKeywordRow();
+  document.getElementById('modal').classList.add('open');
+}
+
+function openEditModal(i) {
+  editingIndex = i;
+  const t = config.targets[i];
+  document.getElementById('modalTitle').textContent = 'モデルを編集';
+  document.getElementById('modalName').value = t.name;
+  document.getElementById('keywordsInput').innerHTML = '';
+  t.keywords.forEach(kw => addKeywordRow(kw));
+  if (t.keywords.length === 0) addKeywordRow();
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+function addKeywordRow(value = '') {
+  const div = document.createElement('div');
+  div.className = 'keyword-row';
+  div.innerHTML = `
+    <input type="text" placeholder='例: "MacBook Pro"' value="${escHtml(value)}">
+    <button class="btn btn-ghost" style="padding:8px 10px" onclick="this.parentElement.remove()">✕</button>
+  `;
+  document.getElementById('keywordsInput').appendChild(div);
+}
+
+async function saveTarget() {
+  const name = document.getElementById('modalName').value.trim();
+  if (!name) { showToast('モデル名を入力してください', 'error'); return; }
+
+  const keywords = [...document.querySelectorAll('#keywordsInput input')]
+    .map(i => i.value.trim()).filter(Boolean);
+  if (!keywords.length) { showToast('キーワードを1つ以上入力してください', 'error'); return; }
+
+  const btn = document.getElementById('modalSaveBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+
+  if (editingIndex >= 0) {
+    config.targets[editingIndex] = { name, keywords };
+  } else {
+    config.targets.push({ name, keywords });
+  }
+
+  try {
+    const yaml = buildConfig(config);
+    const res = await putFile('config.yml', yaml, configSha, `feat: ${editingIndex >= 0 ? 'update' : 'add'} target "${name}"`);
+    configSha = res.content.sha;
+    closeModal();
+    renderTargets();
+    renderStatus();
+    showToast('保存しました', 'success');
+  } catch (e) {
+    showToast(`保存失敗: ${e.message}`, 'error');
+    if (editingIndex >= 0) config.targets[editingIndex] = config.targets[editingIndex];
+    else config.targets.pop();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '保存';
+  }
+}
+
+async function deleteTarget(i) {
+  const name = config.targets[i].name;
+  if (!confirm(`「${name}」を削除しますか？`)) return;
+
+  config.targets.splice(i, 1);
+  try {
+    const yaml = buildConfig(config);
+    const res = await putFile('config.yml', yaml, configSha, `feat: remove target "${name}"`);
+    configSha = res.content.sha;
+    renderTargets();
+    renderStatus();
+    showToast('削除しました', 'success');
+  } catch (e) {
+    showToast(`削除失敗: ${e.message}`, 'error');
+    await connect();
+  }
+}
+
+// ────────────────────────────────────────
+// ユーティリティ
+// ────────────────────────────────────────
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// モーダル外クリックで閉じる
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal')) closeModal();
+});
+</script>
+</body>
+</html>
