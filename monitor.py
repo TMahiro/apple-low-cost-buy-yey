@@ -17,7 +17,7 @@ import yaml
 # 定数
 # -------------------------------------------
 APPLE_REFURBISHED_API = (
-    "https://www.apple.com/jp/shop/refurbished/products.json"
+    "https://www.apple.com/jp/shop/refurb-category/mac/listing.json"
 )
 STATE_FILE = Path("state.json")
 CONFIG_FILE = Path("config.yml")
