@@ -6,10 +6,10 @@
 enabled: true
 
 targets:
-  - name: MacBook Pro 14ã¤ã³ã M5 Pro 24GB
+  - name: MacBook Pro 14inch m5 24GB
     keywords:
       - "MacBook Pro"
-      - "14"
-      - "M5 Pro"
+      - "14inch"
+      - "M5"
       - "24GB"
 
