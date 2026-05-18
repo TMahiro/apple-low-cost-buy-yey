@@ -3,7 +3,7 @@
 # ============================================================
 
 # 監視・通知のオンオフ
-enabled: false
+enabled: true
 
 targets:
   - name: MacBook Pro 14ã¤ã³ã M5 24GB
