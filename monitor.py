@@ -44,7 +44,7 @@ def load_state() -> dict:
 
 def save_state(state: dict) -> None:
     with open(STATE_FILE, "w", encoding="utf-8") as f:
-        json.dump(state, f, ensure_ascii=False, indent=2)
+        json.dump(state, f, ensure_ascii=False, indent=2, default=str)
     print(f"[INFO] 状態を保存しました: {STATE_FILE}")
 
 
